@@ -1,0 +1,10 @@
+.DS_Store
+.env
+node_modules/
+dist/
+build/
+client/dist/
+.databricks/
+test-results/
+playwright-report/
+.smoke-test/
