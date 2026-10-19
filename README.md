@@ -20,6 +20,8 @@ Search the repo for these and replace them with your own workspace's values:
 | `<lakebase-project-uid>` | Lakebase project UID (for cost attribution) |
 | `<your-email>` | your user, for the data-team allowlist and cost filters |
 
+**Execution evidence:** see [`evidence/`](evidence/README.md) for every notebook's saved output, the pipeline run history, live Genie answers, model output and app API calls, committed as text.
+
 ## What's in the demo
 
 | # | Asset | What it shows |
