@@ -1,0 +1,36 @@
+# Serverless jobs that produced the saved notebook output in evidence/notebooks/.
+resources:
+  jobs:
+    auction_setup:
+      name: auc_00_setup_and_synthetic_data
+      tasks:
+        - task_key: generate
+          notebook_task:
+            notebook_path: ../notebooks/00_setup_and_synthetic_data.py
+    auction_demo_notebooks:
+      name: auc_demo_notebooks
+      tasks:
+        - task_key: run_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.auction_elt.id}
+        - task_key: nb02_live_drop
+          depends_on: [{task_key: run_pipeline}]
+          notebook_task: {notebook_path: ../notebooks/02_declarative_pipeline_streaming_cdc.py}
+        - task_key: nb03_pii
+          depends_on: [{task_key: run_pipeline}]
+          notebook_task: {notebook_path: ../notebooks/03_pii_tagging_and_masking.sql}
+        - task_key: nb04_metric_views
+          depends_on: [{task_key: run_pipeline}]
+          notebook_task: {notebook_path: ../notebooks/04_metric_views.py}
+        - task_key: nb05_ai_in_sql
+          depends_on: [{task_key: run_pipeline}]
+          notebook_task: {notebook_path: ../notebooks/05_ai_in_sql.sql}
+        - task_key: nb08_bid_affinity_model
+          depends_on: [{task_key: run_pipeline}]
+          notebook_task: {notebook_path: ../notebooks/08_bid_affinity_model.py}
+        - task_key: nb06_lakebase
+          depends_on: [{task_key: nb08_bid_affinity_model}]
+          notebook_task: {notebook_path: ../notebooks/06_lakebase_serving_recommendations.py}
+        - task_key: nb07_cost_observability
+          depends_on: [{task_key: nb06_lakebase}]
+          notebook_task: {notebook_path: ../notebooks/07_cost_and_observability.sql}

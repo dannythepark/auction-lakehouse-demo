@@ -20,6 +20,21 @@ Search the repo for these and replace them with your own workspace's values:
 | `<lakebase-project-uid>` | Lakebase project UID (for cost attribution) |
 | `<your-email>` | your user, for the data-team allowlist and cost filters |
 
+## For reviewers: where each stage lives
+
+| Stage | Code | Proof it ran (text) |
+|---|---|---|
+| **Lakeflow** ingest + transform | [`notebooks/01_declarative_pipeline_batch_elt.sql`](notebooks/01_declarative_pipeline_batch_elt.sql): Auto Loader (`STREAM read_files`), `EXPECT` rules, `AUTO CDC ... STORED AS SCD TYPE 2`, gold streaming table + materialized view. Declared as a pipeline in [`resources/auction_elt.pipeline.yml`](resources/auction_elt.pipeline.yml) | [`evidence/pipeline_runs.md`](evidence/pipeline_runs.md) · [`evidence/notebooks/02_declarative_pipeline_streaming_cdc.md`](evidence/notebooks/02_declarative_pipeline_streaming_cdc.md) |
+| **Unity Catalog** governance | [`notebooks/03_pii_tagging_and_masking.sql`](notebooks/03_pii_tagging_and_masking.sql), [`sql/pii_plaintext_alert.sql`](sql/pii_plaintext_alert.sql), [`notebooks/04_metric_views.py`](notebooks/04_metric_views.py) | [`evidence/notebooks/03_pii_tagging_and_masking.md`](evidence/notebooks/03_pii_tagging_and_masking.md) · [`evidence/pii_plaintext_alert.md`](evidence/pii_plaintext_alert.md) · [`evidence/notebooks/04_metric_views.md`](evidence/notebooks/04_metric_views.md) |
+| **Lakebase** serving | [`notebooks/06_lakebase_serving_recommendations.py`](notebooks/06_lakebase_serving_recommendations.py), [`app/server/routes/buyer-routes.ts`](app/server/routes/buyer-routes.ts) | [`evidence/notebooks/06_lakebase_serving_recommendations.md`](evidence/notebooks/06_lakebase_serving_recommendations.md) · [`evidence/app_smoke_test.md`](evidence/app_smoke_test.md) |
+| **ML** (trained, registered) | [`notebooks/08_bid_affinity_model.py`](notebooks/08_bid_affinity_model.py): MLflow tracking, UC model registry, `champion` alias | [`evidence/notebooks/08_bid_affinity_model.md`](evidence/notebooks/08_bid_affinity_model.md) |
+| **GenAI** | [`notebooks/05_ai_in_sql.sql`](notebooks/05_ai_in_sql.sql), [`app/server/routes/appraise-routes.ts`](app/server/routes/appraise-routes.ts) | [`evidence/notebooks/05_ai_in_sql.md`](evidence/notebooks/05_ai_in_sql.md) · [`evidence/vision_appraisal.md`](evidence/vision_appraisal.md) |
+| **Genie Agent** | space definition in [`evidence/genie.md`](evidence/genie.md), [`app/server/routes/genie-persona-routes.ts`](app/server/routes/genie-persona-routes.ts) | [`evidence/genie.md`](evidence/genie.md) (live answers, incl. masked PII as the Marketing rep) |
+| **Databricks App** | [`app/`](app/) (AppKit), [`app/databricks.yml`](app/databricks.yml) | [`evidence/app_smoke_test.md`](evidence/app_smoke_test.md) |
+| Cost + observability | [`notebooks/07_cost_and_observability.sql`](notebooks/07_cost_and_observability.sql), [`sql/v_demo_cost.sql`](sql/v_demo_cost.sql) | [`evidence/notebooks/07_cost_and_observability.md`](evidence/notebooks/07_cost_and_observability.md) |
+
+Deploy the data side with the bundle at the root (`databricks bundle deploy -p <profile>`): the pipeline plus jobs that run notebooks 00 and 02–08.
+
 **Execution evidence:** see [`evidence/`](evidence/README.md) for every notebook's saved output, the pipeline run history, live Genie answers, model output and app API calls, committed as text.
 
 ## What's in the demo
@@ -34,6 +49,9 @@ Search the repo for these and replace them with your own workspace's values:
 | 05 | `notebooks/05_ai_in_sql.sql` | `ai_classify`, `ai_extract`, `ai_gen`, `AI_FORECAST` |
 | 06 | `notebooks/06_lakebase_serving_recommendations.py` | Recommendations served from **Lakebase Postgres**: index-scan plan, p50/p95 over 500 lookups vs the SQL warehouse, refresh from gold, write-back, access |
 | 07 | `notebooks/07_cost_and_observability.sql` | Cost by tag / resource ID, data-quality results, lineage, PII-access audit, LLM usage, all from system tables |
+| 08 | `notebooks/08_bid_affinity_model.py` | **Trained bid-affinity model**: time-split features, gradient boosting tracked in MLflow, evaluated against the bid-count rule, registered in Unity Catalog (`champion` alias), scores written to gold |
+| — | `sql/pii_plaintext_alert.sql` | Approved roster + violations view + Databricks SQL alert: fires when anyone outside the roster can see or has read buyer PII in plaintext |
+| — | `databricks.yml`, `resources/` | Bundle: the Lakeflow pipeline and the jobs that run the notebooks |
 | — | `sql/v_demo_cost.sql` | The cost-attribution view behind the app's Cost page |
 | — | `app/` | **Buyer 360**, a Databricks App (AppKit, TypeScript/React) |
 
@@ -79,7 +97,7 @@ All warehouse queries are `.obo.sql` (run as the signed-in user); the Marketing-
    ```bash
    cd app
    cp .env.example .env    # fill in your values, local dev only
-   npm install
+   npm install             # package-lock.json isn't committed; npm resolves from package.json
    npm run typegen         # needs a running warehouse
    databricks apps deploy --profile <profile>
    ```

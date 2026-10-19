@@ -1,0 +1,14 @@
+# Lakeflow Spark Declarative Pipeline: raw JSON (UC Volume) → bronze (Auto Loader) → silver (EXPECT rules)
+# → dim_account (AUTO CDC, SCD2) → gold fact_bids (streaming table) + daily_gmv (materialized view).
+# Source: notebooks/01_declarative_pipeline_batch_elt.sql. Run history: evidence/pipeline_runs.md.
+resources:
+  pipelines:
+    auction_elt:
+      name: auc_demo_elt
+      serverless: true
+      continuous: false        # set true for 1–5 min bid freshness; no code changes
+      catalog: ${var.catalog}
+      schema: auc_gold
+      libraries:
+        - notebook:
+            path: ../notebooks/01_declarative_pipeline_batch_elt.sql

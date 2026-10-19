@@ -1,0 +1,18 @@
+# Declarative Automation Bundle for the data side of the demo.
+# The Buyer 360 app has its own bundle in app/databricks.yml.
+bundle:
+  name: auction-lakehouse-demo
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog that holds the auc_* schemas
+    default: demo_catalog
+
+targets:
+  dev:
+    mode: development
+    default: true
+    # workspace host comes from your CLI profile: databricks bundle deploy -p <profile>

@@ -16,8 +16,8 @@
 -- MAGIC | orchestration is external | orchestration, retries, lineage built in |
 -- MAGIC | SCD2 via snapshot macros | `AUTO CDC ... STORED AS SCD TYPE 2` first-class |
 -- MAGIC
--- MAGIC **Pipeline settings to use:** serverless, default catalog `auctionco_demo`.
--- MAGIC (See the README for the exact `databricks pipelines create` JSON.)
+-- MAGIC **Pipeline settings to use:** serverless, default catalog `demo_catalog`, schema `auc_gold`.
+-- MAGIC (Defined as a bundle resource in `resources/auction_elt.pipeline.yml`.)
 
 -- COMMAND ----------
 
